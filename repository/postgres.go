@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"POC/entity"
+	"github.com/hexa-SaikumarAilwar/RedisPOC.git/POC/entity"
 	"context"
 	"database/sql"
 	"fmt"

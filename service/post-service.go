@@ -1,8 +1,8 @@
 package service
 
 import (
-	"POC/entity"
-	"POC/repository"
+	"github.com/hexa-SaikumarAilwar/RedisPOC.git/POC/entity"
+	"github.com/hexa-SaikumarAilwar/RedisPOC.git/POC/repository"
 	"errors"
 )
 
