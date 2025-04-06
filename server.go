@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 
+	"github.com/hexa-SaikumarAilwar/RedisPOC.git/cache"
 	"github.com/hexa-SaikumarAilwar/RedisPOC.git/controller"
 	router "github.com/hexa-SaikumarAilwar/RedisPOC.git/http"
 	"github.com/hexa-SaikumarAilwar/RedisPOC.git/repository"
@@ -14,11 +15,11 @@ const (
 	port    = ":4000"
 )
 
-var (
-	httpRouter router.Router = router.NewMuxRouter()
-)
-
 func main() {
+	// Intialize router
+	var httpRouter router.Router = router.NewMuxRouter()
+	var postCache cache.PostCache = cache.NewRedisCache("localhost:6379", 0, 10)
+
 	// Initialize repository
 	repo, err := repository.NewRepository(connStr)
 	if err != nil {
@@ -27,10 +28,11 @@ func main() {
 
 	// Initialize service and controller
 	postService := service.NewPostService(repo)
-	postController := controller.NewPostController(postService)
+	postController := controller.NewPostController(postService, postCache)
 
 	// API routes
 	httpRouter.GET("/posts", postController.GetPosts)
+	httpRouter.GET("/post/{id}", postController.GetPostById)
 	httpRouter.POST("/posts", postController.AddPost)
 
 	httpRouter.SERVE(port)

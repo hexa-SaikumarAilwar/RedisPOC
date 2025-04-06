@@ -1,15 +1,17 @@
 package service
 
 import (
+	"errors"
+
 	"github.com/hexa-SaikumarAilwar/RedisPOC.git/entity"
 	"github.com/hexa-SaikumarAilwar/RedisPOC.git/repository"
-	"errors"
 )
 
 type PostService interface {
 	Validate(post *entity.Post) error
 	CreatePost(post *entity.Post) (*entity.Post, error)
 	FindAll() ([]entity.Post, error)
+	FindById(id int) (*entity.Post, error)
 }
 
 type service struct{}
@@ -39,4 +41,8 @@ func (*service) CreatePost(post *entity.Post) (*entity.Post, error) {
 }
 func (*service) FindAll() ([]entity.Post, error) {
 	return repo.FindAll()
+}
+
+func (s *service) FindById(id int) (*entity.Post, error) {
+	return repo.FindById(id)
 }

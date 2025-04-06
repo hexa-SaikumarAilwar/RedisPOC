@@ -1,11 +1,12 @@
 package repository
 
 import (
-	"github.com/hexa-SaikumarAilwar/RedisPOC.git/entity"
 	"context"
 	"database/sql"
 	"fmt"
 	"log"
+
+	"github.com/hexa-SaikumarAilwar/RedisPOC.git/entity"
 
 	_ "github.com/lib/pq" // PostgreSQL driver
 )
@@ -66,4 +67,21 @@ func (r *repo) FindAll() ([]entity.Post, error) {
 	}
 
 	return posts, nil
+}
+
+func (r *repo) FindById(id int) (*entity.Post, error) {
+	ctx := context.Background()
+	query := `SELECT id, title, text FROM posts WHERE id = $1`
+
+	var post entity.Post
+	err := r.db.QueryRowContext(ctx, query, id).Scan(&post.Id, &post.Title, &post.Text)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, fmt.Errorf("post with id %d not found", id)
+		}
+		return nil, fmt.Errorf("failed to fetch post: %v", err)
+	}
+
+	return &post, nil
 }
