@@ -1,8 +1,8 @@
 package controller
 
 import (
-	"github.com/hexa-SaikumarAilwar/RedisPOC.git/POC/entity"
-	"github.com/hexa-SaikumarAilwar/RedisPOC.git/POC/service"
+	"github.com/hexa-SaikumarAilwar/RedisPOC.git/entity"
+	"github.com/hexa-SaikumarAilwar/RedisPOC.git/service"
 	"encoding/json"
 	"net/http"
 )

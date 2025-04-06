@@ -3,10 +3,10 @@ package main
 import (
 	"log"
 
-	"github.com/hexa-SaikumarAilwar/RedisPOC.git/POC/controller"
-	router "github.com/hexa-SaikumarAilwar/RedisPOC.git/POC/http"
-	"github.com/hexa-SaikumarAilwar/RedisPOC.git/POC/repository"
-	"github.com/hexa-SaikumarAilwar/RedisPOC.git/POC/service"
+	"github.com/hexa-SaikumarAilwar/RedisPOC.git/controller"
+	router "github.com/hexa-SaikumarAilwar/RedisPOC.git/http"
+	"github.com/hexa-SaikumarAilwar/RedisPOC.git/repository"
+	"github.com/hexa-SaikumarAilwar/RedisPOC.git/service"
 )
 
 const (

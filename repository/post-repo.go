@@ -1,6 +1,6 @@
 package repository
 
-import "github.com/hexa-SaikumarAilwar/RedisPOC.git/POC/entity"
+import "github.com/hexa-SaikumarAilwar/RedisPOC.git/entity"
 
 type PostRepository interface {
 	Save(post *entity.Post) (*entity.Post, error)
