@@ -18,17 +18,19 @@ const (
 func main() {
 	// Intialize router
 	var httpRouter router.Router = router.NewMuxRouter()
+	// var httpRouter router.Router = router.NewGinRouter()
 	var postCache cache.PostCache = cache.NewRedisCache("localhost:6379", 0, 10)
+	// var postCache cache.PostCache = cache.NewValkeyCache("localhost:6379", 10*time.Second)
 
 	// Initialize repository
-	repo, err := repository.NewRepository(connStr)
+	repo, err := repository.NewPostRepository(connStr)
 	if err != nil {
 		log.Fatalf("Failed to initialize repository: %v", err)
 	}
 
 	// Initialize service and controller
-	postService := service.NewPostService(repo)
-	postController := controller.NewPostController(postService, postCache)
+	postService := service.NewPostService(repo, postCache)
+	postController := controller.NewPostController(postService)
 
 	// API routes
 	httpRouter.GET("/posts", postController.GetPosts)

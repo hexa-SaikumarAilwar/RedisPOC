@@ -2,7 +2,9 @@ package service
 
 import (
 	"errors"
+	"strconv"
 
+	"github.com/hexa-SaikumarAilwar/RedisPOC.git/cache"
 	"github.com/hexa-SaikumarAilwar/RedisPOC.git/entity"
 	"github.com/hexa-SaikumarAilwar/RedisPOC.git/repository"
 )
@@ -14,15 +16,13 @@ type PostService interface {
 	FindById(id int) (*entity.Post, error)
 }
 
-type service struct{}
-
-var (
+type service struct{
 	repo repository.PostRepository
-)
+	cache cache.PostCache
+}
 
-func NewPostService(r repository.PostRepository) PostService {
-	repo = r
-	return &service{}
+func NewPostService(r repository.PostRepository, c cache.PostCache) PostService {
+	return &service{repo: r, cache: c}
 }
 
 func (*service) Validate(post *entity.Post) error {
@@ -36,13 +36,26 @@ func (*service) Validate(post *entity.Post) error {
 	}
 	return nil
 }
-func (*service) CreatePost(post *entity.Post) (*entity.Post, error) {
-	return repo.Save(post)
+func (s *service) CreatePost(post *entity.Post) (*entity.Post, error) {
+	return s.repo.Save(post)
 }
-func (*service) FindAll() ([]entity.Post, error) {
-	return repo.FindAll()
+func (s *service) FindAll() ([]entity.Post, error) {
+	return s.repo.FindAll()
 }
 
 func (s *service) FindById(id int) (*entity.Post, error) {
-	return repo.FindById(id)
+	key := strconv.Itoa(id)
+
+	post := s.cache.Get(key)
+	if post != nil {
+		return post, nil
+	}
+
+	post, err := s.repo.FindById(id)
+	if err != nil {
+		return nil, err
+	}
+
+	s.cache.Set(key, post)
+	return post, nil
 }

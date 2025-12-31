@@ -3,17 +3,9 @@ package controller
 import (
 	"encoding/json"
 	"net/http"
-	"strconv"
 
-	"github.com/gorilla/mux"
-	"github.com/hexa-SaikumarAilwar/RedisPOC.git/cache"
 	"github.com/hexa-SaikumarAilwar/RedisPOC.git/entity"
 	"github.com/hexa-SaikumarAilwar/RedisPOC.git/service"
-)
-
-var (
-	postService service.PostService
-	postCache   cache.PostCache
 )
 
 type PostController interface {
@@ -22,18 +14,18 @@ type PostController interface {
 	AddPost(resp http.ResponseWriter, req *http.Request)
 }
 
-type controller struct{}
-
-func NewPostController(service service.PostService, cache cache.PostCache) PostController {
-	postService = service
-	postCache = cache
-	return &controller{}
+type controller struct {
+	postService service.PostService
 }
 
-func (*controller) GetPosts(resp http.ResponseWriter, req *http.Request) {
+func NewPostController(s service.PostService) PostController {
+	return &controller{postService: s}
+}
+
+func (c *controller) GetPosts(resp http.ResponseWriter, req *http.Request) {
 	resp.Header().Set("Content-Type", "application/json")
 
-	posts, err := postService.FindAll()
+	posts, err := c.postService.FindAll()
 	if err != nil {
 		http.Error(resp, `{"error": "Failed to fetch posts"}`, http.StatusInternalServerError)
 		return
@@ -42,7 +34,7 @@ func (*controller) GetPosts(resp http.ResponseWriter, req *http.Request) {
 	json.NewEncoder(resp).Encode(posts)
 }
 
-func (*controller) AddPost(resp http.ResponseWriter, req *http.Request) {
+func (c *controller) AddPost(resp http.ResponseWriter, req *http.Request) {
 	resp.Header().Set("Content-Type", "application/json")
 
 	var post entity.Post
@@ -51,12 +43,12 @@ func (*controller) AddPost(resp http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	err := postService.Validate(&post)
+	err := c.postService.Validate(&post)
 	if err != nil {
 		http.Error(resp, `{"error": "Failed to validate post"}`, http.StatusInternalServerError)
 		return
 	}
-	savedPost, err := postService.CreatePost(&post)
+	savedPost, err := c.postService.CreatePost(&post)
 	if err != nil {
 		http.Error(resp, `{"error": "Failed to save post"}`, http.StatusInternalServerError)
 		return
@@ -66,30 +58,17 @@ func (*controller) AddPost(resp http.ResponseWriter, req *http.Request) {
 	json.NewEncoder(resp).Encode(savedPost)
 }
 
-func (*controller) GetPostById(resp http.ResponseWriter, req *http.Request) {
+func (c *controller) GetPostById(resp http.ResponseWriter, req *http.Request) {
 	resp.Header().Set("Content-Type", "application/json")
 
-	// Extract ID from URL params
-	vars := mux.Vars(req)
-	id := vars["id"]
+	postId := req.Context().Value("id").(int)
 
-	// Convert to int (with error handling)
-	postId, err := strconv.Atoi(id)
+	post, err := c.postService.FindById(postId)
 	if err != nil {
-		http.Error(resp, `{"error": "Invalid post ID"}`, http.StatusBadRequest)
+		http.Error(resp, `{"error": "Post not found"}`, http.StatusNotFound)
 		return
 	}
 
-	var post *entity.Post = postCache.Get(id)
-	if post == nil {
-		post, err := postService.FindById(postId)
-		if err != nil {
-			http.Error(resp, `{"error": "Post not found"}`, http.StatusNotFound)
-			return
-		}
-		postCache.Set(id, post)
-		json.NewEncoder(resp).Encode(post)
-	} else {
-		json.NewEncoder(resp).Encode(post)
-	}
+	resp.WriteHeader(http.StatusOK)
+	json.NewEncoder(resp).Encode(post)
 }

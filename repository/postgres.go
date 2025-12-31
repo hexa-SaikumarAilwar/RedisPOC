@@ -15,7 +15,7 @@ type repo struct {
 	db *sql.DB
 }
 
-func NewRepository(connStr string) (PostRepository, error) {
+func NewPostRepository(connStr string) (PostRepository, error) {
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to database: %v", err)
