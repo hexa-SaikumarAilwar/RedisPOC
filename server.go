@@ -16,7 +16,8 @@ const (
 )
 
 func main() {
-	// Intialize router
+	// Intialize router  
+	
 	var httpRouter router.Router = router.NewMuxRouter()
 	// var httpRouter router.Router = router.NewGinRouter()
 	var postCache cache.PostCache = cache.NewRedisCache("localhost:6379", 0, 10)
